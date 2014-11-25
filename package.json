@@ -1,0 +1,24 @@
+{
+  "name": "pihome",
+  "version": "1.0.0",
+  "description": "Raspberry home server app.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amouly/pihome.git"
+  },
+  "keywords": [
+    "raspberry",
+    "pihome"
+  ],
+  "author": "Adrián Mouly",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amouly/pihome/issues"
+  },
+  "homepage": "https://github.com/amouly/pihome"
+}
