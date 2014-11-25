@@ -1,33 +1,62 @@
-/*globals require, console*/
-var http = require('http'),
-    fs = require('fs'),
+/*jslint node: true*/
+'use strict';
+
+var express = require('express'),
+    app = express(),
+    server = app.listen(8000),
+    io = require('socket.io').listen(server),
     exec = require('child_process').exec;
 
-// Create HTTP Server
-var server = http.createServer(function (request, response) {
-    'use strict';
+//Static folder
+app.use(express.static('static'));
+
+//Get root path
+app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/index.html');
+});
+
+io.on('connection', function (socket) {
     
-    // Read template file
-    fs.readFile('index.html', function (err, data) {
-        response.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length });
-        response.write(data);
-        response.end();
+    //Read Temperature event
+    socket.on('readTemp', function (data) {
+        //Execute System cmd
+        exec("vcgencmd measure_temp", function (error, stdout, stderr) {
+            if (error !== null) {
+                socket.emit('tempError', { error: error });
+            } else {
+                var temp = stdout.slice(5, 11);
+                
+                socket.emit('tempData', { value: temp });
+            }
+        });
+    });
+    
+    //Read uptime
+    socket.on('readUptime', function () {
+        //Execute System cmd
+        exec("uptime | tail -n 1 | awk '{print $3}'", function (error, stdout, stderr) {
+            if (error !== null) {
+                socket.emit('uptimeError', { error: error });
+            } else {
+                var uptime = stdout.slice(0, 4);
+                
+                socket.emit('uptimeData', { value: uptime });
+            }
+        });
     });
 });
 
-function readTemp() {
-    'use strict';
-
-    var temp;
-
+//Get system temperature
+app.get('/temperature', function (req, res) {
+    
+    //Execute System cmd
     exec("cat /sys/class/thermal/thermal_zone0/temp", function (error, stdout, stderr) {
         if (error !== null) {
-            console.log('exec error: ' + error);
+            res.send('exec error: ' + error);
         } else {
-            temp = parseFloat(stdout) / 1000;
+            var temp = parseFloat(stdout) / 1000;
+            
+            res.send('Temperature: ' + temp);
         }
     });
-}
-
-// Listen on port
-server.listen(8000);
+});
