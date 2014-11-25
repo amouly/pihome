@@ -19,30 +19,42 @@ io.on('connection', function (socket) {
     
     //Read Temperature event
     socket.on('readTemp', function (data) {
-        //Execute System cmd
-        exec("vcgencmd measure_temp", function (error, stdout, stderr) {
-            if (error !== null) {
-                socket.emit('tempError', { error: error });
-            } else {
-                var temp = stdout.slice(5, 11);
-                
-                socket.emit('tempData', { value: temp });
-            }
-        });
+        
+        function emitTemp() {
+            //Execute System cmd
+            exec("vcgencmd measure_temp", function (error, stdout, stderr) {
+                if (error !== null) {
+                    socket.emit('tempError', { error: error });
+                } else {
+                    var temp = stdout.slice(5, 11);
+
+                    socket.emit('tempData', { value: temp });
+                }
+            });
+        }
+        
+        emitTemp();
+        setInterval(emitTemp, 5000);
     });
     
     //Read uptime
     socket.on('readUptime', function () {
-        //Execute System cmd
-        exec("uptime | tail -n 1 | awk '{print $3}'", function (error, stdout, stderr) {
-            if (error !== null) {
-                socket.emit('uptimeError', { error: error });
-            } else {
-                var uptime = stdout.slice(0, 4);
-                
-                socket.emit('uptimeData', { value: uptime });
-            }
-        });
+        
+        function emitUptime() {
+            //Execute System cmd
+            exec("uptime | tail -n 1 | awk '{print $3}'", function (error, stdout, stderr) {
+                if (error !== null) {
+                    socket.emit('uptimeError', { error: error });
+                } else {
+                    var uptime = stdout.slice(0, 4);
+
+                    socket.emit('uptimeData', { value: uptime });
+                }
+            });
+        }
+        
+        emitUptime();
+        setInterval(emitUptime, 30000);
     });
 });
 
