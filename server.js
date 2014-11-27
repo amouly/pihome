@@ -3,6 +3,7 @@
 
 var express = require('express'),
     app = express(),
+    moment = require('moment'),
     server = app.listen(8000),
     io = require('socket.io').listen(server),
     exec = require('child_process').exec;
@@ -42,11 +43,11 @@ io.on('connection', function (socket) {
         
         function emitUptime() {
             //Execute System cmd
-            exec("uptime | tail -n 1 | awk '{print $3}'", function (error, stdout, stderr) {
+            exec("uptime -s", function (error, stdout, stderr) {
                 if (error !== null) {
                     socket.emit('uptimeError', { error: error });
                 } else {
-                    var uptime = stdout.slice(0, 4);
+                    var uptime = moment(stdout).fromNow();
 
                     socket.emit('uptimeData', { value: uptime });
                 }
