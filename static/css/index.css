@@ -2,3 +2,17 @@ body {
     padding-top: 70px;
     padding-bottom: 30px;
 }
+
+.buttons-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.buttons-list li {
+    margin-bottom: 5px;
+}
+
+.buttons-list li:last-child {
+    margin-bottom: 0;
+}
