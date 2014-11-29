@@ -23,6 +23,8 @@
     "homepage": "https://github.com/amouly/pihome",
     "dependencies": {
         "express": "^4.10.3",
-        "socket.io": "latest"
+        "socket.io": "latest",
+        "gpio": "latest",
+        "moment": "latest"
     }
 }

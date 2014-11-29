@@ -7,7 +7,13 @@ var express = require('express'),
     server = app.listen(8000),
     io = require('socket.io').listen(server),
     exec = require('child_process').exec,
-    gpio = require("gpio");
+    gpio = require('gpio'),
+    serialport = require('serialport');
+
+var serialPort = new serialport.SerialPort('/dev/ttyUSB0', {
+    //Listening on the serial port for data coming from Arduino over USB
+	parser: serialport.parsers.readline('\n')
+});
 
 //Static folder
 app.use(express.static('static'));
@@ -54,56 +60,54 @@ var gpio25 = gpio.export(25, {
     }
 });
 
-//Socket Events
-io.on('connection', function (socket) {
-    
-    //Emit Relays status
-    //socket.emit('toggleOne', { value: gpio18.value });
-    //socket.emit('toggleTwo', { value: gpio23.value });
-    //socket.emit('toggleThree', { value: gpio24.value });
-    //socket.emit('toggleFour', { value: gpio25.value });
-    
-    //Read Temperature event
-    socket.on('readTemp', function (data) {
-        
-        function emitTemp() {
-            //Execute System cmd
-            exec("vcgencmd measure_temp", function (error, stdout, stderr) {
-                if (error !== null) {
-                    socket.emit('tempError', { error: error });
-                } else {
-                    var temp = stdout.slice(5, 11);
-
-                    socket.emit('tempData', { value: temp });
-                }
-            });
+/* 
+    Read CPU Temperature and pass to Callback
+*/
+var readCpuTemp = function (callback) {
+    exec("vcgencmd measure_temp", function (error, stdout, stderr) {
+        if (error !== null) {
+            callback('error', { value: error });
+        } else {
+            var temp = stdout.slice(5, 11);
+            
+            callback('cpuTemp', { value: temp });
         }
-        
-        emitTemp();
-        setInterval(emitTemp, 5000);
     });
-    
-    //Read uptime
-    socket.on('readUptime', function () {
-        
-        function emitUptime() {
-            //Execute System cmd
-            exec("uptime -s", function (error, stdout, stderr) {
-                if (error !== null) {
-                    socket.emit('uptimeError', { error: error });
-                } else {
-                    var uptime = moment(stdout).fromNow();
+};
 
-                    socket.emit('uptimeData', { value: uptime });
-                }
-            });
+/* 
+    Read System Uptime and pass to Callback
+*/
+var readSysUptime = function (callback) {
+    exec("uptime -s", function (error, stdout, stderr) {
+        if (error !== null) {
+            callback('error', { value: error });
+        } else {
+            var uptime = moment(stdout).fromNow();
+
+            callback('sysUptime', { value: uptime });
         }
-        
-        emitUptime();
-        setInterval(emitUptime, 30000);
     });
+};
+
+
+var statusNs = io.of('/status');
+
+//Emit for all the clients
+function emitCpuTemp() {
+    readCpuTemp(statusNs.emit);
+}
+
+setInterval(emitCpuTemp, 30000);
+
+
+//Current Socket Events
+statusNs.on('connection', function (socket) {
+
+
+    readCpuTemp(socket.emit);
     
-    socket.on('toggleOne', function () {
+    /*socket.on('toggleOne', function () {
         if (gpio18.value === 0) {
             gpio18.set(1);
         } else {
@@ -141,5 +145,12 @@ io.on('connection', function (socket) {
         }
         
         socket.emit('toggleFour', { value: gpio25.value });
-    });
+    });*/
+        
+    
+});
+
+serialPort.on('data', function (data) {
+    //When a new line of text is received from Arduino over USB
+    console.log(data);
 });
