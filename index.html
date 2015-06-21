@@ -5,7 +5,7 @@
         <title>PiHome</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="/css/index.css">
+        <link rel="stylesheet" href="css/index.css">
     </head>
     <body>
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -62,10 +62,25 @@
                                 </ul>
                             </div>
                         </div>
-                    </div><!-- /.col-sm-4 -->
+                    </div>
                     <div class="col-sm-4">
-                        <img src="http://rp.mouly.com.ar:81/" alt="Live Streaming" />
-                    </div><!-- /.col-sm-4 -->
+                        <img src="http://home.mouly.io:81/" class="panel" alt="Live Streaming" style="width: 100%; height: auto;" />
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Camera Control</h3>
+                            </div>
+                            <div class="panel-body">
+                                <ul class="buttons-list">
+                                    <li>
+                                        <button id="camera-turn-right" class="btn btn-default">Turn Right</button>
+                                    </li>
+                                    <li>
+                                        <button id="camera-turn-left" class="btn btn-default">Turn Left</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                   </div>
             </div>
         </div>
