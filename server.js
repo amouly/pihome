@@ -98,7 +98,7 @@ setInterval(emitCpuTemp, 30000);
 statusNs.on('connection', function (socket) {
 
 
-    readCpuTemp(socket.emit);
+    //readCpuTemp(socket.emit);
 
     /*socket.on('toggleOne', function () {
         if (gpio18.value === 0) {
